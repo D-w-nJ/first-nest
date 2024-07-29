@@ -58,16 +58,25 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
-## Support
+## 설명
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### 파일구조 ###
 
-## Stay in touch
+1. eslintrc.js
+ - 개발자들이 특정한 규칙을 가지고 코드를 짤 수 있도록 도와주는 라이브러리
+ - 타입스크립트 쓰는 가이드라인을 제시
+ - 문법에 오류나면 알려주는 역할 등등..
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+2. prettierrc
+- 주로 코드 형식을 맞추는데 사용 (작은 따옴표를 쓸지, 큰 따옴표를 쓸지 등등)
 
-## License
+3. nest-cli.json
+- nest 관련 설정
+- soureRoot 를 src로 설정해주는 등
 
-Nest is [MIT licensed](LICENSE).
+4. package.json
+- 패키지의 이름, 버전, 빌드방식, 라이브러리 버전 등 패키지 정보
+
+5. src 폴더
+- 로직들이 들어가있음
+- **main.ts**가 어플리케이션 생성을 하고, 루트모듈인 AppModule을 생성한다. 3000번 포트에서 앱을 실행한다.
