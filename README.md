@@ -80,3 +80,112 @@ $ npm run test:cov
 5. src 폴더
 - 로직들이 들어가있음
 - **main.ts**가 어플리케이션 생성을 하고, 루트모듈인 AppModule을 생성한다. 3000번 포트에서 앱을 실행한다.
+
+
+### 모듈생성 ###
+```
+nest g module boards
+``` 
+- nest: using nestcli
+- g: generate
+- module: chematic that i want to create
+- boards: name of the schematic
+
+
+### Controler ###
+- 데코레이터를 통해 컨트롤러를 정의할 수 있다.
+- Handler(@Get, @Post, @Put)를 정의할 수 있다.
+- nest cli 사용해서 컨트롤러 생성 가능하다.
+```
+nest g controller boards --no-spec
+```
+- --no-spec: 테스트 코드 없이
+- 실행순서
+  - cli는 먼저 boards 폴더를 찾는다
+  - controller 파일 생성
+  - boards 폴더 안에 module 폴더를 찾는다
+  - module 폴더 안에 controller 추가(등록)
+- requesBody 선언 - Body 데코레이터 이용
+  ``` typescript
+  @Post()
+  create(
+    @Body('title') title,
+    @Body('description') description){
+      return this.boardsService.create(title, description);
+    }
+  )
+  ```
+
+### Service ###
+```
+nest g service boards --no-spec
+```
+- boards.service.ts 생성
+``` typescript
+  @Injectable()
+  export class AppService{
+    getHello(): string {
+      return 'Hello World!';
+    }
+  }
+```
+
+- @Injectable() 데코레이터가 있어서, 다른 컴포넌트에서 이 Service를 사용할 수 있게 된다
+- boards 모듈, 컨트롤러에 추가된다
+- boards 컨트롤러에서 사용 가능하도록 컨트롤러 constructor를 통해 주입해준다.
+  ``` typescript
+  @Controller('boards')
+  export class BoardsController {
+      boardsService: BoardsService;
+
+      constructor(boardsService: BoardsService) {
+        this.boardsServie = boardsService;
+      }
+  }
+
+  // 간단하게 다음과 같이 작성가능(타입스크립트 기능, private을 써주면 인수인 파라미터가 암묵적으로 프로퍼티로 선언됨, private인 이유는 이 클래스 안에서만 사용하기 위해서)
+  constructor(private boardsService: BoardsService){}
+  ```
+
+### Provider ###
+: Nest의 기본 개념으로, 기본 Nest 클래스는 서비스, 리포지토리, 팩터리, 헬퍼 등 프로바이더로 취급될 수 있습니다. 주요 아이디어는 **종속성으로 주입**할 수 있다는 것으로, 객체는 서로 다양한 관계를 가지고, 인스턴스들간의 연결하는 기능은 Nest 런타임 시스템에 위임됩니다.
+
+- 등록 방식
+  : module 파일에서 등록을 통해 해당 모듈에서 사용하고자 하는 Provider를 입력해줄 수 있다.
+  ``` typescript
+  @Module({
+    controller: [BoardsController],
+    providers: [BoardsService]
+  })
+  ```
+
+### 인터페이스 선언 ###
+: 인터페이스는 타입만을 체크하고, 클래스는 타입뿐 아니라 인스턴스 생성이 가능
+``` typescript
+export interface Board {
+  id: string;
+  title: string;
+  description: string;
+  status BoardStatus;
+}
+```
+### Enum 선언 ###
+``` typescript
+export enum BoardStatus {
+  PUBLIC = 'PUBLIC',
+  PRIVATE = 'PRIVATE'
+}
+```
+
+### 타입스크립트에 대해서 ###
+``` typescript
+const board = {
+  title: title
+}
+
+// 다음 코드로 치환가능
+
+const board = {
+  title
+}
+```
