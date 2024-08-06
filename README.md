@@ -115,7 +115,17 @@ nest g controller boards --no-spec
     }
   )
   ```
-
+- 경로변수는 다음과 같이 받을 수 있다. (localhost:5000?id=~~)
+  ``` typescript
+      @Get('/:id')
+      find(@Param('id') id: string): Board{
+          return this.boardsService.findById(id);
+      }
+  ```
+- 경로변수가 여러개라면 다음과 같이 작성 가능하다.
+  ``` typescript
+      find(@Param() params: stiring[])
+  ```
 ### Service ###
 ```
 nest g service boards --no-spec
@@ -177,6 +187,15 @@ export enum BoardStatus {
 }
 ```
 
+### Dto 생성 ###
+- 클래스 형태로 생성한다.
+``` typescript
+export class CreateBoardDto{
+    title: string;
+    description: string;
+}
+```
+
 ### 타입스크립트에 대해서 ###
 ``` typescript
 const board = {
@@ -189,3 +208,18 @@ const board = {
   title
 }
 ```
+
+<br>
+
+``` typescript
+const title = createBoardDto.title;
+const description = createBoardDto.description;
+
+// 다음 코드로 치환가능
+
+const {title, description} = createBoardDto;
+```
+
+<br>
+
+- 클래스는 인터페이스와 다르게 런타임에서 작동한다.
