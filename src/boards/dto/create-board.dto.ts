@@ -1,4 +1,9 @@
-export class CreateBoardDto{
-    title: string;
-    description: string;
+import { IsNotEmpty } from "class-validator";
+
+export class CreateBoardDto {
+  @IsNotEmpty()
+  title: string;
+
+  @IsNotEmpty()
+  description: string;
 }

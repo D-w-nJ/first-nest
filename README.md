@@ -196,6 +196,62 @@ export class CreateBoardDto{
 }
 ```
 
+### Pipe에 대해서 ###
+- Pipe는 @Injectable() 데코레이터로 주석이 달린 클래스
+- Data Transformation, Data Validation에 사용
+  - 여기서 실패하면 에러발생
+  - **Data Transformation**
+    - 입력 데이터를 원하는 형식으로 변환, 변환 실패 시 에러발생 ('7' -> 7)
+  - **Data Validation**
+    - 유효성 검사 (10자 이내인데 이상값 들어오면 에러)
+- Nest는 메서드가 호출되기 전에 파이프를 삽입하고, 파이프는 메서드를 향하는 인수를 수신하고 작동
+  ![img.png](img.png)
+- **사용방법**
+  1. Handler-level Pipes
+     ``` typescript
+     // 이 핸들러에만 파이프가 작동
+     @Post()
+     @UsePipes(pipe)
+     createBoard(){}
+     ```
+  2. Parameter-level Pipes
+     ``` typescript
+     @Post()
+     create(
+      @Body('title', ParameterPipe) title, // 파이프 적용
+      @Body('description') description)    // 파이프 미적용
+     {}
+     ```
+  3. Global-level Pipes
+     - 어플리케이션 레벨의 파이프
+     - 클라이언트에서 들어오는 모든 요청에 적용
+     ``` typescript
+     async function bootstrap() {
+     const app = await NestFactory.create(AppModule);
+     app.useGlobalPipes(GlobalPipes);
+     await app.listen(3000);
+     }
+     bootstrap();
+     ```
+  4. Nest가 제공하는 6가지 파이프 존재
+    - ValidationPipe
+    - ParseIntPipe
+    - ParseBoolPipe
+    - ParseArrayPipe
+    - ParseUUIDPipe
+    - DefaultValuePipe
+    ``` typescript![img_1.png](img_1.png)
+    @Get(':id')
+    findOne(@Param('id', ParseIntPipe) id: number)  // 문자열로 받으면 에러발생, number로 변환, 유효성 검사
+    {return;}
+    ```
+  5. Custom Pipe
+  ``` typescript
+  export class ---Pipe implements PripeTrasform {
+    transform(value: any, metaData: ArgumentMetadata) {}
+  }
+  ```
+
 ### 타입스크립트에 대해서 ###
 ``` typescript
 const board = {
@@ -219,6 +275,10 @@ const description = createBoardDto.description;
 
 const {title, description} = createBoardDto;
 ```
+
+<br>
+
+- 접두사(prefix) readOnly는 읽기전용이다. 외부에서 접근 가능하지만 값은 변경할 수 없다.
 
 <br>
 

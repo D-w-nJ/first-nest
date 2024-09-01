@@ -1,44 +1,55 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
-import { BoardsService } from './boards.service';
-import { Board, BoardStatus } from './board';
-import { CreateBoardDto } from './dto/create-board.dto';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UsePipes,
+  ValidationPipe
+} from "@nestjs/common";
+import { BoardsService } from "./boards.service";
+import { Board, BoardStatus } from "./board";
+import { CreateBoardDto } from "./dto/create-board.dto";
+import { BoardStatusValidationPipe } from "./pipes/board-status-validation.pipe";
 
-@Controller('boards')
+@Controller("boards")
 export class BoardsController {
-    boardsService: BoardsService;
+  boardsService: BoardsService;
 
-    constructor(boardsService: BoardsService){
-        this.boardsService = boardsService;
-    }
-    // constructor(private boardsService: BoardsService){} 로 대체가능(프로퍼티 선언까지)
+  constructor(boardsService: BoardsService) {
+    this.boardsService = boardsService;
+  }
 
-    @Get('/')
-    getAll(): Board[] {
-        return this.boardsService.getAll();
-    }
+  // constructor(private boardsService: BoardsService){} 로 대체가능(프로퍼티 선언까지)
 
-    @Get('/:id')
-    get(@Param('id') id: string): Board {
-        return this.boardsService.getById(id);
-    }
+  @Get("/")
+  getAll(): Board[] {
+    return this.boardsService.getAll();
+  }
 
-    @Post('/')
-    create(
-        @Body() createBoardDto: CreateBoardDto
-    ): Board{
-        return this.boardsService.create(createBoardDto);
-    }
+  @Get("/:id")
+  get(@Param("id") id: string): Board {
+    return this.boardsService.getById(id);
+  }
 
-    @Delete('/:id')
-    delete(@Param('id') id:string): void {
-        return this.boardsService.delete(id);
-    }
+  @Post("/")
+  @UsePipes(ValidationPipe)
+  create(@Body() createBoardDto: CreateBoardDto): Board {
+    return this.boardsService.create(createBoardDto);
+  }
 
-    @Patch('/:id/status')
-    updateStatus(
-        @Param('id') id : string, 
-        @Body('status') status : BoardStatus
-    ): Board{
-            return this.boardsService.updateStatus(id, status);
-    }
+  @Delete("/:id")
+  delete(@Param("id") id: string): void {
+    return this.boardsService.delete(id);
+  }
+
+  @Patch("/:id/status")
+  updateStatus(
+    @Param("id") id: string,
+    @Body("status", BoardStatusValidationPipe) status: BoardStatus
+  ): Board {
+    return this.boardsService.updateStatus(id, status);
+  }
 }
