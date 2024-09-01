@@ -252,6 +252,112 @@ export class CreateBoardDto{
   }
   ```
 
+### PostgresSQL ###
+- postgresSQL, pgAdmin(데이터베이스를 보는 툴)을 설치한다.
+
+### TypeORM ###
+- node.js에 실행되고 TypeScript로 작성된 객체 관계형 매퍼 라이프러리입니다.
+- ORM이란 데이터베이스의 데이터를 객체로 사용할 수 있도록 지원하는 기술, 객체지향 프로그래밍 언어에서 데이터베이스와의 상호작용을 간단하게 하기위함
+- 모델을 기반으로 테이블을 자동생성 가능하다
+- 테이블간의 매핑, 간단한 CLI명령 제공
+```typescript
+const boards = Board.find({ title: 'Hello', status: "PUBLIC"});
+```
+  1. 설치
+     2. @nestjs/typeorm
+     3. typeorm
+     4. pg
+     <br> 참고: https://docs.nestjs.com/techniques/database
+  2. 설정
+     ``` typescript
+     export const typeormConfig: TypeOrmModuleOptions = {
+        type: 'postgres',
+        host: 'localhost',
+        port: 5432,
+        username: 'postgres',
+        password: 'postgres',
+        database: 'board-app',
+        entities: [__dirname + '/../**/*.entity.{js,ts}'],  // 엔티티를 기반으로 테이블을 생성하기 떄문에, 엔티티가 있는곳을 설정해줘야 한다.
+        synchronize: true,
+     };
+     ```
+     그리고 app.module.ts에 import 추가
+     ```typescript
+     @Module({
+        imports: [BoardsModule, TypeOrmModule.forRoot(typeormConfig)]
+     })
+     ```
+  3. Entity
+     ```typescript
+     export class Board extends BaseEntity {
+        @PrimaryGeneratedColumn()
+        id: number;
+        
+        @Column()
+        title: string;
+        
+        @Column()
+        description: string;
+        
+        @Column()
+        status: BoardStatus;
+     }
+     ```
+  4. Repository
+     ```typescript
+     @EntityRepository(Board)
+     export class BoardRepository extends Repository<Board>{}
+     ```
+     Service에 주입
+     ```typescript
+     constructor(
+     @InjectRepository(BoardsRepository)
+     private boardsRepository: BoardsRepository) {}
+     ```
+  5. remove vs delete
+     - remove는 값이 있는지를 확인한 후, 없다면 에러가 난다. 쿼리 두번호출
+     - delete는 값이 없다면 무시, 있다면 삭제
+  6. Transaction
+     - TypeOrm에서는 QueryRunner, TransactionManager 두 방식이 있다.
+     - QueryRunner: 커밋과 롤백을 명시할 수 있어서 섬세한 트랜잭션이 가능하다.
+       ```typescript
+       const connection = getConnection();
+       const queryRunner = connection.createQueryRunner();
+
+       await queryRunner.connect();
+       await queryRunner.startTransaction();
+
+       try {
+         const newBoard = this.boardsRepository.create({
+         title: 'New Board',
+         description: 'Board description',
+         });
+         await queryRunner.manager.save(newBoard);
+
+         // 추가 작업들
+         // 다른 엔티티를 저장하거나 수정할 수 있습니다.
+
+         await queryRunner.commitTransaction();
+       } catch (err) {
+         await queryRunner.rollbackTransaction();
+       } finally {
+         await queryRunner.release();
+       }
+       ```
+     - TransactionManager: 간단하게 적용가능
+       ```typescript
+        @Transaction()
+        async createBoard(
+          @TransactionManager() manager: EntityManager,
+        ): Promise<void> {
+          const newBoard = manager.create(Board, {
+            title: 'New Board',
+            description: 'Board description',
+          });
+          await manager.save(newBoard);
+       }
+       ```
+
 ### 타입스크립트에 대해서 ###
 ``` typescript
 const board = {

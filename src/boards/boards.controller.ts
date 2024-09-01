@@ -3,16 +3,17 @@ import {
   Controller,
   Delete,
   Get,
-  Param,
+  Param, ParseIntPipe,
   Patch,
   Post,
   UsePipes,
   ValidationPipe
 } from "@nestjs/common";
 import { BoardsService } from "./boards.service";
-import { Board, BoardStatus } from "./board";
 import { CreateBoardDto } from "./dto/create-board.dto";
 import { BoardStatusValidationPipe } from "./pipes/board-status-validation.pipe";
+import { Board } from "./board.entity";
+import { BoardStatus } from "./board";
 
 @Controller("boards")
 export class BoardsController {
@@ -24,32 +25,62 @@ export class BoardsController {
 
   // constructor(private boardsService: BoardsService){} 로 대체가능(프로퍼티 선언까지)
 
+  // @Get("/")
+  // getAll(): Board[] {
+  //   return this.boardsService.getAll();
+  // }
+
   @Get("/")
-  getAll(): Board[] {
+  getAll(): Promise<Board[]> {
     return this.boardsService.getAll();
   }
 
+
+  // @Get("/:id")
+  // get(@Param("id") id: string): Board {
+  //   return this.boardsService.getById(id);
+  // }
+
   @Get("/:id")
-  get(@Param("id") id: string): Board {
+  getById(@Param("id") id: number): Promise<Board> {
     return this.boardsService.getById(id);
   }
 
+  // @Post("/")
+  // @UsePipes(ValidationPipe)
+  // create(@Body() createBoardDto: CreateBoardDto): Board {
+  //   return this.boardsService.create(createBoardDto);
+  // }
+
   @Post("/")
   @UsePipes(ValidationPipe)
-  create(@Body() createBoardDto: CreateBoardDto): Board {
+  create(@Body() createBoardDto: CreateBoardDto): Promise<Board> {
     return this.boardsService.create(createBoardDto);
   }
 
+  // @Delete("/:id")
+  // delete(@Param("id") id: string): void {
+  //   return this.boardsService.delete(id);
+  // }
+
   @Delete("/:id")
-  delete(@Param("id") id: string): void {
+  delete(@Param("id", ParseIntPipe) id: number) {
     return this.boardsService.delete(id);
   }
 
+  // @Patch("/:id/status")
+  // updateStatus(
+  //   @Param("id") id: string,
+  //   @Body("status", BoardStatusValidationPipe) status: BoardStatus
+  // ): Board {
+  //   return this.boardsService.updateStatus(id, status);
+  // }
+
   @Patch("/:id/status")
   updateStatus(
-    @Param("id") id: string,
+    @Param("id", ParseIntPipe) id: number,
     @Body("status", BoardStatusValidationPipe) status: BoardStatus
-  ): Board {
+  ): Promise<Board> {
     return this.boardsService.updateStatus(id, status);
   }
 }
